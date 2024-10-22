@@ -1,5 +1,6 @@
-import chalk from "npm:chalk"
+//import chalk from "npm:chalk"
 
+const log = console.log
 let tree = async (dir: string): Promise<string[]> => {
   const out = []
   for await (const entry of Deno.readDir(dir)) {
@@ -9,4 +10,6 @@ let tree = async (dir: string): Promise<string[]> => {
 }
 
 const files = await tree(Deno.args[0])
-console.log(chalk.bgBlue(files.join("\n")))
+log(files)
+log("%c" + files.join("\n"), "color: red")
+//console.log(chalk.bgBlue(files.join("\n")))
