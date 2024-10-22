@@ -1,11 +1,12 @@
 //import chalk from "npm:chalk"
-import { walk } from "@std/fs/walk"
+import { walk } from "jsr:@std/fs"
+import { relative } from "node:path"
 
 const log = console.log
 let tree = async (dir: string): Promise<string[]> => {
   const out = []
   for await (const entry of walk(dir)) {
-    out.push(entry.name)
+    out.push(relative(dir, entry.path))
   }
   return out
 }
