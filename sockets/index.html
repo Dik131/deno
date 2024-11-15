@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Server!</title>
+  </head>
+  <body>
+    <h1>WebSocket Client</h1>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        justify-content: center;
+      "
+    >
+      <button id="connectDeno">Connect to Deno WebSocket (8000)</button>
+      <button id="connectNode">Connect to Node.js WebSocket (5000)</button>
+      <button id="connectIO">Connect to Socket.IO (6000)</button>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        margin-top: 10px;
+        justify-content: center;
+      "
+    >
+      <button id="sendMessage" disabled>Send Ping</button>
+      <button id="disconnect" style="display: none">Disconnect</button>
+      <button id="clear">Clear</button>
+    </div>
+    <p id="status">Not connected</p>
+    <pre id="messages"></pre>
+  </body>
+  <script>
+    let socket
+    const connectDenoBtn = document.getElementById("connectDeno")
+    const connectNodeBtn = document.getElementById("connectNode")
+    const connectIOBtn = document.getElementById("connectIO")
+    const sendMessageBtn = document.getElementById("sendMessage")
+    const disconnectBtn = document.getElementById("disconnect")
+    const clearBtn = document.getElementById("clear")
+    const status = document.getElementById("status")
+    const messages = document.getElementById("messages")
+
+    sendMessageBtn.addEventListener("click", () => {
+      if (socket) {
+        socket.send("ping")
+      }
+    })
+
+    disconnectBtn.addEventListener("click", () => {
+      if (socket) {
+        socket.close()
+        disconnectBtn.style.display = "none"
+      }
+    })
+
+    clearBtn.addEventListener("click", () => {
+      messages.innerHTML = ""
+    })
+
+    function connectToWebSocket(port, serverType) {
+      if (socket) {
+        socket.close()
+      }
+
+      socket = new WebSocket(`ws://localhost:${port}`)
+
+      socket.addEventListener("open", () => {
+        status.textContent = `Connected to ${serverType} WebSocket Server`
+        connectDenoBtn.disabled = true
+        connectNodeBtn.disabled = true
+        connectIOBtn.disabled = true
+        sendMessageBtn.disabled = false
+        disconnectBtn.style.display = "inline-block"
+      })
+
+      socket.addEventListener("message", (event) => {
+        messages.innerHTML += `Received message from ${serverType} server: <b>${event.data}</b><br>`
+      })
+
+      socket.addEventListener("close", () => {
+        status.textContent = `Disconnected from ${serverType} WebSocket Server`
+        connectDenoBtn.disabled = false
+        connectNodeBtn.disabled = false
+        connectIOBtn.disabled = false
+        sendMessageBtn.disabled = true
+      })
+    }
+
+    connectDenoBtn.addEventListener("click", () => {
+      connectToWebSocket(8000, "Deno")
+    })
+
+    connectNodeBtn.addEventListener("click", () => {
+      connectToWebSocket(5000, "Node.js")
+    })
+
+    connectIOBtn.addEventListener("click", () => {
+      connectToWebSocket(6000, "Socket.IO")
+    })
+  </script>
+</html>
